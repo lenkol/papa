@@ -1,0 +1,49 @@
+#!/usr/bin/env python
+#coding: utf-8
+
+import sys
+import os
+import re
+
+header = '''
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+@media print {
+h2 {page-break-before: always}
+}
+@page {
+margin: 1in;
+}
+</style>
+</head>
+<body>
+'''
+
+def convert(name, outfile):
+    with open('%s.txt' % name, 'r') as infile:
+        data = infile.readlines()
+    outfile.write('<p>\n')
+    for line in data[1:]:
+        if not line.strip():
+            line = '</p><p>\n'
+        outfile.write(line)
+    outfile.write('</p>\n')
+    outfile.write('<p align="right" ><small>%s</small></p>\n' % data[0])
+
+def main(filenames, html):
+    with open(html,  'w') as outfile:
+        outfile.write(header)
+        for name in filenames:
+            convert(name, outfile)
+        outfile.write('</body></html>')
+
+
+if __name__ == '__main__':
+    root = '/Users/lenakolesnikova/papa'
+    _, part = os.path.split(os.path.abspath('.'))
+    html = os.path.join(root, "html/%s.html" % part)
+    filenames = [name.split('.txt')[0] for name in os.listdir('.') if name.endswith('txt')]
+    filenames.sort(key = lambda name: int(re.search('[0-9]+', name).group(0)))
+    main(filenames, html)
